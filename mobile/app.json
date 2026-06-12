@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Verdura",
+    "slug": "verdura-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "verdura",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.verdura.app"
+    },
+    "android": {
+      "package": "com.verdura.app"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-splash-screen"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

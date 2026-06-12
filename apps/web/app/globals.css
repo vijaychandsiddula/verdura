@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.text-ink-light { color: #6b6b64; }
+.text-ink-faint { color: #a8a89e; }
+.border-sand-dark { border-color: #e8e0d0; }
+.bg-sand-dark { background-color: #e8e0d0; }
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}

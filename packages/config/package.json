@@ -1,0 +1,12 @@
+{
+  "name": "@verdura/config",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./tailwind": "./tailwind.config.js",
+    "./eslint-next": "./eslint-next.js",
+    "./eslint-react-native": "./eslint-react-native.js",
+    "./tsconfig-next": "./tsconfig-next.json",
+    "./tsconfig-react-native": "./tsconfig-react-native.json"
+  }
+}
