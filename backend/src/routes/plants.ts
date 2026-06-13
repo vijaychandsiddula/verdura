@@ -15,6 +15,9 @@ const LIST_SELECT = {
   careWatering: true, careSunlight: true, careHumidity: true, careTemperature: true,
   wateringIntervalDays: true, fertiliserIntervalDays: true,
   pruningIntervalDays: true, repottingIntervalMonths: true,
+  potSizeMinInch: true, potSizeMaxInch: true, potVolumeLitres: true,
+  soilCocoPeatPct: true, soilGardenSoilPct: true, soilCompostPct: true,
+  soilExtrasPct: true, soilExtrasNote: true, potNotes: true,
   isActive: true, createdAt: true, updatedAt: true,
 }
 

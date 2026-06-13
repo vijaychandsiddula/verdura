@@ -8,6 +8,384 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Partner {
+  id            String                @id @default(cuid())
+  email         String                @unique
+  passwordHash  String
+  businessName  String
+  ownerName     String
+  phone         String
+  type          PartnerType
+  status        PartnerStatus         @default(pending)
+  logoUrl       String?
+  description   String?
+  city          String
+  state         String
+  pincode       String
+  gstNumber     String?
+  commissionPct Float                 @default(15)
+  bankAccount   String?
+  ifscCode      String?
+  upiId         String?
+  totalEarnings Float                 @default(0)
+  pendingPayout Float                 @default(0)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  orderItems    OrderItem[]
+  payouts       PartnerPayout[]
+  refreshTokens PartnerRefreshToken[]
+  plants        Plant[]
+  seeds         Seed[]
+  supplies      Supply[]
+
+  @@index([status])
+  @@index([type])
+}
+
+model PartnerRefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  partnerId String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+}
+
+model PartnerPayout {
+  id        String    @id @default(cuid())
+  partnerId String
+  amount    Float
+  status    String    @default("pending")
+  reference String?
+  createdAt DateTime  @default(now())
+  paidAt    DateTime?
+  partner   Partner   @relation(fields: [partnerId], references: [id])
+
+  @@index([partnerId])
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String
+  phone         String?
+  passwordHash  String
+  avatarUrl     String?
+  role          Role           @default(customer)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  addresses     Address[]
+  cart          CartItem[]
+  gardenPlants  GardenPlant[]
+  orders        Order[]
+  pushTokens    PushToken[]
+  refreshTokens RefreshToken[]
+  reminders     Reminder[]
+  reviews       Review[]
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Plant {
+  id                      String             @id @default(cuid())
+  name                    String
+  scientificName          String
+  slug                    String             @unique
+  description             String
+  price                   Float
+  comparePrice            Float?
+  stock                   Int                @default(0)
+  images                  String[]
+  thumbnailUrl            String
+  categories              PlantCategory[]
+  difficulty              PlantDifficulty    @default(beginner)
+  tags                    String[]
+  isBestseller            Boolean            @default(false)
+  isNewArrival            Boolean            @default(false)
+  isActive                Boolean            @default(true)
+  careWatering            String
+  careSunlight            String
+  careHumidity            String
+  careTemperature         String
+  wateringIntervalDays    Int
+  fertiliserIntervalDays  Int
+  pruningIntervalDays     Int?
+  repottingIntervalMonths Int?
+  potSizeMinInch          Int?
+  potSizeMaxInch          Int?
+  potVolumeLitres         Int?
+  soilCocoPeatPct         Int?
+  soilGardenSoilPct       Int?
+  soilCompostPct          Int?
+  soilExtrasPct           Int?
+  soilExtrasNote          String?
+  potNotes                String?
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+  partnerId               String?
+  careGuide               CareGuideSection[]
+  cartItems               CartItem[]
+  gardenPlants            GardenPlant[]
+  orderItems              OrderItem[]
+  partner                 Partner?           @relation(fields: [partnerId], references: [id])
+  reviews                 Review[]
+
+  @@index([slug])
+  @@index([partnerId])
+  @@index([isActive])
+  @@index([isActive, isBestseller])
+  @@index([isActive, isNewArrival])
+  @@index([isActive, price])
+  @@index([isActive, createdAt])
+  @@index([isActive, difficulty])
+  @@index([name])
+}
+
+model CareGuideSection {
+  id      String @id @default(cuid())
+  plantId String
+  title   String
+  icon    String
+  body    String
+  order   Int
+  plant   Plant  @relation(fields: [plantId], references: [id], onDelete: Cascade)
+
+  @@index([plantId])
+}
+
+model Supply {
+  id           String         @id @default(cuid())
+  name         String
+  slug         String         @unique
+  description  String
+  price        Float
+  comparePrice Float?
+  stock        Int            @default(0)
+  images       String[]
+  thumbnailUrl String
+  category     SupplyCategory
+  badges       String[]
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  partnerId    String?
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+  reviews      Review[]
+  partner      Partner?       @relation(fields: [partnerId], references: [id])
+
+  @@index([slug])
+  @@index([partnerId])
+  @@index([isActive, category])
+  @@index([isActive, createdAt])
+}
+
+model Seed {
+  id              String          @id @default(cuid())
+  name            String
+  scientificName  String
+  slug            String          @unique
+  description     String
+  price           Float
+  comparePrice    Float?
+  stock           Int             @default(0)
+  images          String[]
+  thumbnailUrl    String
+  categories      SeedCategory[]
+  difficulty      PlantDifficulty @default(beginner)
+  tags            String[]
+  isBestseller    Boolean         @default(false)
+  isNewArrival    Boolean         @default(false)
+  isActive        Boolean         @default(true)
+  germinationDays String
+  sowingDepth     String
+  sowingMethod    String
+  harvestDays     String?
+  seedsPerPacket  Int             @default(20)
+  sowingSeason    String
+  linkedPlantSlug String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  partnerId       String?
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+  reviews         Review[]
+  partner         Partner?        @relation(fields: [partnerId], references: [id])
+
+  @@index([slug])
+  @@index([partnerId])
+  @@index([isActive])
+  @@index([isActive, isBestseller])
+  @@index([isActive, categories])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  plantId   String?
+  supplyId  String?
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  seedId    String?
+  plant     Plant?   @relation(fields: [plantId], references: [id])
+  seed      Seed?    @relation(fields: [seedId], references: [id])
+  supply    Supply?  @relation(fields: [supplyId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, plantId])
+  @@unique([userId, supplyId])
+  @@unique([userId, seedId])
+  @@index([userId])
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  phone     String
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  pincode   String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders    Order[]
+
+  @@index([userId])
+}
+
+model Order {
+  id                String        @id @default(cuid())
+  orderNumber       String        @unique @default(cuid())
+  userId            String
+  addressId         String
+  status            OrderStatus   @default(pending)
+  paymentStatus     PaymentStatus @default(pending)
+  paymentMethod     String
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  subtotal          Float
+  shipping          Float         @default(0)
+  total             Float
+  trackingNumber    String?
+  notes             String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  address           Address       @relation(fields: [addressId], references: [id])
+  user              User          @relation(fields: [userId], references: [id])
+  items             OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id             String   @id @default(cuid())
+  orderId        String
+  plantId        String?
+  supplyId       String?
+  name           String
+  price          Float
+  quantity       Int
+  thumbnailUrl   String
+  createdAt      DateTime @default(now())
+  seedId         String?
+  commissionPct  Float    @default(15)
+  partnerEarning Float    @default(0)
+  partnerId      String?
+  verduraEarning Float    @default(0)
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  partner        Partner? @relation(fields: [partnerId], references: [id])
+  plant          Plant?   @relation(fields: [plantId], references: [id])
+  seed           Seed?    @relation(fields: [seedId], references: [id])
+  supply         Supply?  @relation(fields: [supplyId], references: [id])
+
+  @@index([orderId])
+  @@index([partnerId])
+}
+
+model GardenPlant {
+  id          String     @id @default(cuid())
+  userId      String
+  plantId     String
+  nickname    String?
+  healthScore Int        @default(100)
+  notes       String?
+  acquiredAt  DateTime   @default(now())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  plant       Plant      @relation(fields: [plantId], references: [id])
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reminders   Reminder[]
+
+  @@unique([userId, plantId])
+  @@index([userId])
+}
+
+model Reminder {
+  id            String         @id @default(cuid())
+  userId        String
+  gardenPlantId String
+  type          ReminderType
+  title         String
+  body          String
+  dueAt         DateTime
+  status        ReminderStatus @default(pending)
+  snoozedUntil  DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  gardenPlant   GardenPlant    @relation(fields: [gardenPlantId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([dueAt])
+}
+
+model Review {
+  id                 String   @id @default(cuid())
+  userId             String
+  plantId            String?
+  supplyId           String?
+  rating             Int
+  title              String
+  body               String
+  images             String[]
+  isVerifiedPurchase Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  seedId             String?
+  plant              Plant?   @relation(fields: [plantId], references: [id])
+  seed               Seed?    @relation(fields: [seedId], references: [id])
+  supply             Supply?  @relation(fields: [supplyId], references: [id])
+  user               User     @relation(fields: [userId], references: [id])
+
+  @@index([plantId])
+  @@index([supplyId])
+}
+
+model PushToken {
+  id        String       @id @default(cuid())
+  userId    String
+  token     String       @unique
+  platform  PushPlatform
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 enum Role {
   customer
   admin
@@ -104,389 +482,4 @@ enum PushPlatform {
   ios
   android
   web
-}
-
-model Partner {
-  id             String        @id @default(cuid())
-  email          String        @unique
-  passwordHash   String
-  businessName   String
-  ownerName      String
-  phone          String
-  type           PartnerType
-  status         PartnerStatus @default(pending)
-  logoUrl        String?
-  description    String?
-  city           String
-  state          String
-  pincode        String
-  gstNumber      String?
-  commissionPct  Float         @default(15) // Verdura takes 15% by default
-  bankAccount    String?       // masked
-  ifscCode       String?
-  upiId          String?
-  totalEarnings  Float         @default(0)
-  pendingPayout  Float         @default(0)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  plants         Plant[]
-  seeds          Seed[]
-  supplies       Supply[]
-  orderItems     OrderItem[]
-  payouts        PartnerPayout[]
-  refreshTokens  PartnerRefreshToken[]
-
-  @@index([status])
-  @@index([type])
-}
-
-model PartnerRefreshToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  partnerId String
-  partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-}
-
-model PartnerPayout {
-  id          String   @id @default(cuid())
-  partnerId   String
-  partner     Partner  @relation(fields: [partnerId], references: [id])
-  amount      Float
-  status      String   @default("pending") // pending, paid
-  reference   String?
-  createdAt   DateTime @default(now())
-  paidAt      DateTime?
-
-  @@index([partnerId])
-}
-
-model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String
-  phone        String?
-  passwordHash String
-  avatarUrl    String?
-  role         Role     @default(customer)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  orders        Order[]
-  cart          CartItem[]
-  addresses     Address[]
-  gardenPlants  GardenPlant[]
-  reminders     Reminder[]
-  reviews       Review[]
-  pushTokens    PushToken[]
-  refreshTokens RefreshToken[]
-}
-
-model RefreshToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-}
-
-model Plant {
-  id             String          @id @default(cuid())
-  name           String
-  scientificName String
-  slug           String          @unique
-  description    String
-  price          Float
-  comparePrice   Float?
-  stock          Int             @default(0)
-  images         String[]
-  thumbnailUrl   String
-  categories     PlantCategory[]
-  difficulty     PlantDifficulty @default(beginner)
-  tags           String[]
-  isBestseller   Boolean         @default(false)
-  isNewArrival   Boolean         @default(false)
-  isActive       Boolean         @default(true)
-
-  careWatering    String
-  careSunlight    String
-  careHumidity    String
-  careTemperature String
-
-  wateringIntervalDays    Int
-  fertiliserIntervalDays  Int
-  pruningIntervalDays     Int?
-  repottingIntervalMonths Int?
-
-  partnerId  String?
-  partner    Partner? @relation(fields: [partnerId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  careGuide    CareGuideSection[]
-  reviews      Review[]
-  gardenPlants GardenPlant[]
-  orderItems   OrderItem[]
-  cartItems    CartItem[]
-
-  @@index([slug])
-  @@index([partnerId])
-  @@index([isActive])
-  @@index([isActive, isBestseller])
-  @@index([isActive, isNewArrival])
-  @@index([isActive, price])
-  @@index([isActive, createdAt])
-  @@index([isActive, difficulty])
-  @@index([name])
-}
-
-model CareGuideSection {
-  id      String @id @default(cuid())
-  plantId String
-  plant   Plant  @relation(fields: [plantId], references: [id], onDelete: Cascade)
-  title   String
-  icon    String
-  body    String
-  order   Int
-
-  @@index([plantId])
-}
-
-model Supply {
-  id           String         @id @default(cuid())
-  name         String
-  slug         String         @unique
-  description  String
-  price        Float
-  comparePrice Float?
-  stock        Int            @default(0)
-  images       String[]
-  thumbnailUrl String
-  category     SupplyCategory
-  badges       String[]
-  isActive   Boolean        @default(true)
-  partnerId  String?
-  partner    Partner?       @relation(fields: [partnerId], references: [id])
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
-
-  reviews    Review[]
-  orderItems OrderItem[]
-  cartItems  CartItem[]
-
-  @@index([slug])
-  @@index([partnerId])
-  @@index([isActive, category])
-  @@index([isActive, createdAt])
-}
-
-model Seed {
-  id           String         @id @default(cuid())
-  name         String
-  scientificName String
-  slug         String         @unique
-  description  String
-  price        Float
-  comparePrice Float?
-  stock        Int            @default(0)
-  images       String[]
-  thumbnailUrl String
-  categories   SeedCategory[]
-  difficulty   PlantDifficulty @default(beginner)
-  tags         String[]
-  isBestseller Boolean        @default(false)
-  isNewArrival Boolean        @default(false)
-  isActive     Boolean        @default(true)
-  // Germination info
-  germinationDays  String     // e.g. "5–10 days"
-  sowingDepth      String     // e.g. "1 cm"
-  sowingMethod     String     // e.g. "Direct sow / Transplant"
-  harvestDays      String?    // e.g. "60–90 days after sowing"
-  seedsPerPacket   Int        @default(20)
-  // Season guidance
-  sowingSeason     String     // e.g. "Oct–Jan, Jun–Aug"
-  // Links to the plant it produces (optional)
-  linkedPlantSlug  String?
-  partnerId        String?
-  partner          Partner? @relation(fields: [partnerId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  reviews    Review[]
-  orderItems OrderItem[]
-  cartItems  CartItem[]
-
-  @@index([slug])
-  @@index([partnerId])
-  @@index([isActive])
-  @@index([isActive, isBestseller])
-  @@index([isActive, categories])
-}
-
-model CartItem {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plantId   String?
-  plant     Plant?   @relation(fields: [plantId], references: [id])
-  supplyId  String?
-  supply    Supply?  @relation(fields: [supplyId], references: [id])
-  seedId    String?
-  seed      Seed?    @relation(fields: [seedId], references: [id])
-  quantity  Int      @default(1)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, plantId])
-  @@unique([userId, supplyId])
-  @@unique([userId, seedId])
-  @@index([userId])
-}
-
-model Address {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String
-  phone     String
-  line1     String
-  line2     String?
-  city      String
-  state     String
-  pincode   String
-  isDefault Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  orders Order[]
-
-  @@index([userId])
-}
-
-model Order {
-  id                String        @id @default(cuid())
-  orderNumber       String        @unique @default(cuid())
-  userId            String
-  user              User          @relation(fields: [userId], references: [id])
-  addressId         String
-  address           Address       @relation(fields: [addressId], references: [id])
-  status            OrderStatus   @default(pending)
-  paymentStatus     PaymentStatus @default(pending)
-  paymentMethod     String
-  razorpayOrderId   String?
-  razorpayPaymentId String?
-  subtotal          Float
-  shipping          Float         @default(0)
-  total             Float
-  trackingNumber    String?
-  notes             String?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  items OrderItem[]
-
-  @@index([userId])
-  @@index([status])
-}
-
-model OrderItem {
-  id           String   @id @default(cuid())
-  orderId      String
-  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  plantId      String?
-  plant        Plant?   @relation(fields: [plantId], references: [id])
-  supplyId     String?
-  supply       Supply?  @relation(fields: [supplyId], references: [id])
-  seedId       String?
-  seed         Seed?    @relation(fields: [seedId], references: [id])
-  name            String
-  price           Float
-  quantity        Int
-  thumbnailUrl    String
-  partnerId       String?
-  partner         Partner? @relation(fields: [partnerId], references: [id])
-  commissionPct   Float    @default(15)
-  partnerEarning  Float    @default(0) // price * qty * (1 - commissionPct/100)
-  verduraEarning  Float    @default(0) // price * qty * (commissionPct/100)
-  createdAt       DateTime @default(now())
-
-  @@index([orderId])
-  @@index([partnerId])
-}
-
-model GardenPlant {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plantId     String
-  plant       Plant    @relation(fields: [plantId], references: [id])
-  nickname    String?
-  healthScore Int      @default(100)
-  notes       String?
-  acquiredAt  DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  reminders Reminder[]
-
-  @@unique([userId, plantId])
-  @@index([userId])
-}
-
-model Reminder {
-  id            String         @id @default(cuid())
-  userId        String
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gardenPlantId String
-  gardenPlant   GardenPlant    @relation(fields: [gardenPlantId], references: [id], onDelete: Cascade)
-  type          ReminderType
-  title         String
-  body          String
-  dueAt         DateTime
-  status        ReminderStatus @default(pending)
-  snoozedUntil  DateTime?
-  completedAt   DateTime?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-
-  @@index([userId, status])
-  @@index([dueAt])
-}
-
-model Review {
-  id                 String   @id @default(cuid())
-  userId             String
-  user               User     @relation(fields: [userId], references: [id])
-  plantId            String?
-  plant              Plant?   @relation(fields: [plantId], references: [id])
-  supplyId           String?
-  supply             Supply?  @relation(fields: [supplyId], references: [id])
-  seedId             String?
-  seed               Seed?    @relation(fields: [seedId], references: [id])
-  rating             Int
-  title              String
-  body               String
-  images             String[]
-  isVerifiedPurchase Boolean  @default(false)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  @@index([plantId])
-  @@index([supplyId])
-}
-
-model PushToken {
-  id        String       @id @default(cuid())
-  userId    String
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token     String       @unique
-  platform  PushPlatform
-  createdAt DateTime     @default(now())
-
-  @@index([userId])
 }

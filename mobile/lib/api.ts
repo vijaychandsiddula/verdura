@@ -121,6 +121,10 @@ export interface ApiPlant {
   categories: string[]; difficulty: string; tags: string[]; isBestseller: boolean; isNewArrival: boolean
   careWatering: string; careSunlight: string; careHumidity: string; careTemperature: string
   wateringIntervalDays: number; fertiliserIntervalDays: number
+  pruningIntervalDays?: number; repottingIntervalMonths?: number
+  potSizeMinInch?: number; potSizeMaxInch?: number; potVolumeLitres?: number
+  soilCocoPeatPct?: number; soilGardenSoilPct?: number; soilCompostPct?: number
+  soilExtrasPct?: number; soilExtrasNote?: string; potNotes?: string
   careGuide: { id: string; title: string; icon: string; body: string; order: number }[]
 }
 export interface ApiSupply { id: string; name: string; slug: string; description: string; price: number; comparePrice?: number; stock: number; thumbnailUrl: string; category: string; badges: string[] }

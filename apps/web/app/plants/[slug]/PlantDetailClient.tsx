@@ -149,6 +149,55 @@ export default function PlantDetailClient({ plant, related, slug }: Props) {
           )}
         </div>
 
+        {/* Pot & Soil section */}
+        {plant.potSizeMinInch && (
+          <>
+            <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: '#a8a89e', marginBottom: 12 }}>Pot & soil guide</h2>
+
+            {/* Pot size bar */}
+            <div style={{ backgroundColor: 'white', borderRadius: 14, border: '1px solid #e8e0d0', padding: '16px 20px', marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                <span style={{ fontSize: 22 }}>🪴</span>
+                <div>
+                  <div style={{ fontSize: 11, color: '#a8a89e', textTransform: 'uppercase', letterSpacing: 1 }}>Recommended pot size</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: '#3b6d11' }}>
+                    {plant.potSizeMinInch}"–{plant.potSizeMaxInch}" &nbsp;
+                    <span style={{ fontSize: 13, fontWeight: 400, color: '#6b6b64' }}>({plant.potVolumeLitres} L volume)</span>
+                  </div>
+                </div>
+              </div>
+              {plant.potNotes && (
+                <div style={{ fontSize: 13, color: '#6b6b64', lineHeight: 1.6, backgroundColor: '#f9f7f2', borderRadius: 8, padding: '8px 12px' }}>
+                  💡 {plant.potNotes}
+                </div>
+              )}
+            </div>
+
+            {/* Soil composition donut-style breakdown */}
+            <div style={{ backgroundColor: 'white', borderRadius: 14, border: '1px solid #e8e0d0', padding: '16px 20px', marginBottom: 28 }}>
+              <div style={{ fontSize: 11, color: '#a8a89e', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>Soil mix composition</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  { label: 'Coco Peat', pct: plant.soilCocoPeatPct, color: '#c0a060', emoji: '🟤' },
+                  { label: 'Garden Soil', pct: plant.soilGardenSoilPct, color: '#8B6914', emoji: '🌍' },
+                  { label: 'Compost / Vermicompost', pct: plant.soilCompostPct, color: '#3b6d11', emoji: '♻️' },
+                  ...(plant.soilExtrasPct ? [{ label: plant.soilExtrasNote ?? 'Extras', pct: plant.soilExtrasPct, color: '#a0b0c0', emoji: '⚪' }] : []),
+                ].map(item => item.pct ? (
+                  <div key={item.label}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span style={{ fontSize: 13, color: '#1a1a18' }}>{item.emoji} {item.label}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: item.color }}>{item.pct}%</span>
+                    </div>
+                    <div style={{ height: 8, backgroundColor: '#f5f0e8', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ width: `${item.pct}%`, height: '100%', backgroundColor: item.color, borderRadius: 4 }} />
+                    </div>
+                  </div>
+                ) : null)}
+              </div>
+            </div>
+          </>
+        )}
+
         {/* Care guide accordion */}
         {plant.careGuide?.length > 0 && (
           <>

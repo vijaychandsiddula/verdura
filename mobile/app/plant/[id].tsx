@@ -120,6 +120,44 @@ export default function PlantDetail() {
             </>
           ) : null}
 
+          {/* Pot & Soil Guide */}
+          {plant.potSizeMinInch ? (
+            <>
+              <Text style={[s.secTitle, { marginTop: 20 }]}>Pot &amp; soil guide</Text>
+
+              {/* Pot size card */}
+              <View style={s.potCard}>
+                <Text style={s.potEmoji}>🪴</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.potLabel}>Recommended pot size</Text>
+                  <Text style={s.potSize}>{plant.potSizeMinInch}"–{plant.potSizeMaxInch}" &nbsp;<Text style={s.potVol}>({plant.potVolumeLitres} L)</Text></Text>
+                  {plant.potNotes ? <Text style={s.potNote}>💡 {plant.potNotes}</Text> : null}
+                </View>
+              </View>
+
+              {/* Soil bars */}
+              <View style={s.soilCard}>
+                <Text style={s.potLabel}>Soil mix composition</Text>
+                {[
+                  { label: 'Coco Peat',              pct: plant.soilCocoPeatPct,   color: '#b8895a', emoji: '🟤' },
+                  { label: 'Garden Soil',             pct: plant.soilGardenSoilPct, color: '#7a5c14', emoji: '🌍' },
+                  { label: 'Compost / Vermicompost',  pct: plant.soilCompostPct,    color: '#3b6d11', emoji: '♻️' },
+                  ...(plant.soilExtrasPct ? [{ label: plant.soilExtrasNote ?? 'Extras', pct: plant.soilExtrasPct, color: '#809aaa', emoji: '⚪' }] : []),
+                ].map(item => item.pct ? (
+                  <View key={item.label} style={{ marginTop: 10 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 13, color: '#1a1a18' }}>{item.emoji} {item.label}</Text>
+                      <Text style={{ fontSize: 13, fontWeight: '600', color: item.color }}>{item.pct}%</Text>
+                    </View>
+                    <View style={{ height: 7, backgroundColor: '#e8e0d0', borderRadius: 4, overflow: 'hidden' }}>
+                      <View style={{ width: `${item.pct}%` as `${number}%`, height: '100%', backgroundColor: item.color, borderRadius: 4 }} />
+                    </View>
+                  </View>
+                ) : null)}
+              </View>
+            </>
+          ) : null}
+
           {plant.careGuide && plant.careGuide.length > 0 && (
             <>
               <Text style={[s.secTitle, { marginTop: 20 }]}>Full care guide</Text>
@@ -185,6 +223,13 @@ const s = StyleSheet.create({
   careLabel: { fontSize: 11, color: C.ink4, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
   careVal: { fontSize: 14, fontWeight: '500', color: C.ink },
   desc: { fontSize: 14, color: C.ink2, lineHeight: 22 },
+  potCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, backgroundColor: C.white, borderRadius: 14, padding: 16, borderWidth: 1, borderColor: C.sand2, marginBottom: 10 },
+  potEmoji: { fontSize: 28 },
+  potLabel: { fontSize: 11, color: C.ink4, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
+  potSize: { fontSize: 20, fontWeight: '700', color: C.green700 },
+  potVol: { fontSize: 13, fontWeight: '400', color: C.ink3 },
+  potNote: { fontSize: 12, color: C.ink3, lineHeight: 18, marginTop: 8, backgroundColor: '#f9f7f2', borderRadius: 8, padding: 8 },
+  soilCard: { backgroundColor: C.white, borderRadius: 14, padding: 16, borderWidth: 1, borderColor: C.sand2, marginBottom: 20 },
   acc: { backgroundColor: C.white, borderRadius: 12, marginBottom: 8, borderWidth: 1, borderColor: C.sand2, overflow: 'hidden' },
   accHdr: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 14 },
   accTitle: { fontSize: 14, fontWeight: '500', color: C.ink },
