@@ -1,12 +1,14 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { LeafCluster, LeafBg, WaveDown, WaveUp, FeatureIcon } from './LandingGraphics'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
 async function getFeaturedPlants() {
   try {
-    const res = await fetch(`${API}/api/v1/plants/featured`, { next: { revalidate: 300 } })
+    const res = await fetch(`${API}/api/v1/plants/featured`, {
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(3000), // don't block page for more than 3s
+    })
     const json = await res.json()
     return (json.data || []).slice(0, 4) as Array<{
       id: string; slug: string; name: string; price: number;
@@ -28,10 +30,10 @@ const CATEGORY_GRID = [
 ]
 
 const FALLBACK_PLANTS = [
-  { slug: 'monstera-deliciosa', name: 'Monstera',    price: 349, thumbnailUrl: 'https://images.unsplash.com/photo-2pTYBhn6U3s?w=400&fit=crop',    isBestseller: true,  isNewArrival: false },
-  { slug: 'tulsi-holy-basil',   name: 'Tulsi',       price: 99,  thumbnailUrl: 'https://images.unsplash.com/photo-1DSxe2DMJfY?w=400&fit=crop',    isBestseller: false, isNewArrival: true  },
-  { slug: 'aloe-vera',          name: 'Aloe vera',   price: 149, thumbnailUrl: 'https://images.unsplash.com/photo-iRcFP75uef8?w=400&fit=crop',    isBestseller: false, isNewArrival: false },
-  { slug: 'snake-plant',        name: 'Snake plant', price: 199, thumbnailUrl: 'https://images.unsplash.com/photo-wdArsFqaZ5w?w=400&fit=crop',    isBestseller: true,  isNewArrival: false },
+  { slug: 'monstera-deliciosa', name: 'Monstera',    price: 349, thumbnailUrl: 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=400&h=280&fit=crop&auto=format', isBestseller: true,  isNewArrival: false },
+  { slug: 'tulsi-holy-basil',   name: 'Tulsi',       price: 99,  thumbnailUrl: 'https://images.unsplash.com/photo-1618375569909-3c8616cf7733?w=400&h=280&fit=crop&auto=format', isBestseller: false, isNewArrival: true  },
+  { slug: 'aloe-vera',          name: 'Aloe vera',   price: 149, thumbnailUrl: 'https://images.unsplash.com/photo-1596547609652-9cf5d8c10616?w=400&h=280&fit=crop&auto=format', isBestseller: false, isNewArrival: false },
+  { slug: 'snake-plant',        name: 'Snake plant', price: 199, thumbnailUrl: 'https://images.unsplash.com/photo-1611211232932-da3113c5b960?w=400&h=280&fit=crop&auto=format', isBestseller: true,  isNewArrival: false },
 ]
 
 export default async function HomePage() {
@@ -95,11 +97,9 @@ export default async function HomePage() {
                 <Link key={p.slug} href={`/plants/${p.slug}`}
                   style={{ backgroundColor: 'white', borderRadius: 20, border: '1px solid #e8e0d0', textDecoration: 'none', display: 'block', overflow: 'hidden', marginTop: i % 2 === 1 ? 32 : 0, boxShadow: '0 4px 24px rgba(59,109,17,0.08)' }}>
                   <div style={{ height: 140, backgroundColor: '#f5f0e8', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
-                    {p.thumbnailUrl ? (
-                      <Image src={p.thumbnailUrl} alt={p.name} fill sizes="220px" style={{ objectFit: 'cover' }} priority={i < 2} />
-                    ) : (
-                      <span style={{ fontSize: 48 }}>🌿</span>
-                    )}
+                    {p.thumbnailUrl
+                      ? <img src={p.thumbnailUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                      : <span style={{ fontSize: 48 }}>🌿</span>}
                     {p.isBestseller && <span style={{ position: 'absolute', top: 8, left: 8, backgroundColor: '#eaf3de', color: '#27500a', fontSize: 10, padding: '2px 8px', borderRadius: 100, fontWeight: 500 }}>Bestseller</span>}
                     {p.isNewArrival && !p.isBestseller && <span style={{ position: 'absolute', top: 8, left: 8, backgroundColor: '#fdf5e6', color: '#854f0b', fontSize: 10, padding: '2px 8px', borderRadius: 100, fontWeight: 500 }}>New</span>}
                   </div>
