@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { fromCache, toCache, invalidatePrefix } from '../lib/cache'
+import { getKitForPlant } from '../lib/kitSuggestions'
 
 const router = Router()
 
@@ -121,8 +122,9 @@ router.get('/id/:id', async (req, res) => {
     include: { careGuide: { orderBy: { order: 'asc' } }, partner: { select: { id: true, businessName: true, city: true, state: true } } },
   })
   if (!plant) return res.status(404).json({ success: false, error: 'Plant not found' })
-  const response = { success: true, data: plant }
-  await toCache(cacheKey, response)
+  const { kit, kitTotal } = await getKitForPlant(plant, prisma)
+  const response = { success: true, data: { ...plant, kit, kitTotal } }
+  await toCache(cacheKey, response, 300)
   res.json(response)
 })
 
@@ -166,8 +168,9 @@ router.get('/:slug', async (req, res) => {
     },
   })
   if (!plant) return res.status(404).json({ success: false, error: 'Plant not found' })
-  const response = { success: true, data: plant }
-  await toCache(cacheKey, response)
+  const { kit, kitTotal } = await getKitForPlant(plant, prisma)
+  const response = { success: true, data: { ...plant, kit, kitTotal } }
+  await toCache(cacheKey, response, 300)
   res.json(response)
 })
 

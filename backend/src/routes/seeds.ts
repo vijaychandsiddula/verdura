@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { fromCache, toCache, invalidatePrefix } from '../lib/cache'
+import { getKitForPlant } from '../lib/kitSuggestions'
 
 export const seedsRouter = Router()
 
@@ -71,7 +72,21 @@ seedsRouter.get('/:slug', async (req, res) => {
   const seed = await prisma.seed.findUnique({ where: { slug: req.params.slug } })
   if (!seed) return res.status(404).json({ success: false, error: 'Seed not found' })
 
-  const r = { success: true, data: seed }
-  await toCache(cacheKey, r)
+  // Seeds need the same pot+soil kit as the plant they grow into
+  // categories on seed match plant categories (vegetable, herb, flowering etc.)
+  const seedAsPlant = {
+    categories:       seed.categories as string[],
+    potSizeMinInch:   null,   // seeds use generic starter sizes
+    potSizeMaxInch:   null,
+    potVolumeLitres:  8,      // standard 8" starter pot
+    soilCocoPeatPct:  35,
+    soilGardenSoilPct: 35,
+    soilCompostPct:   30,
+    soilExtrasPct:    null,
+    soilExtrasNote:   null,
+  }
+  const { kit, kitTotal } = await getKitForPlant(seedAsPlant, prisma)
+  const r = { success: true, data: { ...seed, kit, kitTotal } }
+  await toCache(cacheKey, r, 300)
   res.json(r)
 })

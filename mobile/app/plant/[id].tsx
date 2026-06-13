@@ -158,6 +158,49 @@ export default function PlantDetail() {
             </>
           ) : null}
 
+          {/* Complete Your Kit */}
+          {plant.kit && plant.kit.length > 0 && (
+            <>
+              <Text style={[s.secTitle, { marginTop: 20 }]}>Complete your kit</Text>
+              <Text style={s.kitSubtitle}>
+                Exact quantities for a {plant.potSizeMinInch}"–{plant.potSizeMaxInch}" pot
+              </Text>
+              {plant.kit.map((item) => (
+                <View key={item.slug} style={[s.kitCard, item.priority === 'essential' && s.kitCardEssential]}>
+                  {/* thumb */}
+                  {item.thumbnailUrl ? (
+                    <Image source={{ uri: item.thumbnailUrl }} style={s.kitThumb} contentFit="cover" />
+                  ) : (
+                    <View style={[s.kitThumb, { alignItems: 'center', justifyContent: 'center' }]}>
+                      <Text style={{ fontSize: 20 }}>🌿</Text>
+                    </View>
+                  )}
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                      <View style={[s.kitBadge, item.priority === 'essential' ? s.kitBadgeEss : item.priority === 'recommended' ? s.kitBadgeRec : s.kitBadgeOpt]}>
+                        <Text style={[s.kitBadgeTxt, { color: item.priority === 'essential' ? '#27500a' : item.priority === 'recommended' ? '#7a5010' : '#666' }]}>
+                          {item.priority}
+                        </Text>
+                      </View>
+                      <Text style={s.kitRole}>{item.role}</Text>
+                    </View>
+                    <Text style={s.kitName}>{item.qty > 1 ? `×${item.qty}  ` : ''}{item.name}</Text>
+                    <Text style={s.kitNote} numberOfLines={2}>{item.exactNote}</Text>
+                  </View>
+                  <Text style={s.kitPrice}>₹{item.price}</Text>
+                </View>
+              ))}
+              {/* Kit total bar */}
+              <View style={s.kitTotal}>
+                <View>
+                  <Text style={s.kitTotalLabel}>Complete setup cost</Text>
+                  <Text style={s.kitTotalSub}>Plant + all {plant.kit.length} kit items</Text>
+                </View>
+                <Text style={s.kitTotalAmt}>₹{(plant.kitTotal ?? 0) + plant.price}</Text>
+              </View>
+            </>
+          )}
+
           {plant.careGuide && plant.careGuide.length > 0 && (
             <>
               <Text style={[s.secTitle, { marginTop: 20 }]}>Full care guide</Text>
@@ -223,6 +266,23 @@ const s = StyleSheet.create({
   careLabel: { fontSize: 11, color: C.ink4, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
   careVal: { fontSize: 14, fontWeight: '500', color: C.ink },
   desc: { fontSize: 14, color: C.ink2, lineHeight: 22 },
+  kitSubtitle: { fontSize: 13, color: C.ink3, marginBottom: 10, marginTop: -6 },
+  kitCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, backgroundColor: C.white, borderRadius: 14, padding: 12, borderWidth: 1.5, borderColor: C.sand2, marginBottom: 8 },
+  kitCardEssential: { borderColor: '#b8d98a' },
+  kitThumb: { width: 52, height: 52, borderRadius: 10, backgroundColor: C.sand },
+  kitBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 100 },
+  kitBadgeEss: { backgroundColor: '#eaf3de' },
+  kitBadgeRec: { backgroundColor: '#fdf5e4' },
+  kitBadgeOpt: { backgroundColor: C.sand },
+  kitBadgeTxt: { fontSize: 9, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  kitRole: { fontSize: 10, color: C.ink4, textTransform: 'uppercase', letterSpacing: 0.5 },
+  kitName: { fontSize: 13, fontWeight: '600', color: C.ink, marginBottom: 2 },
+  kitNote: { fontSize: 11, color: C.ink3, lineHeight: 16 },
+  kitPrice: { fontSize: 14, fontWeight: '700', color: C.green700, alignSelf: 'center', marginLeft: 4 },
+  kitTotal: { backgroundColor: '#eaf3de', borderRadius: 14, padding: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, marginBottom: 20 },
+  kitTotalLabel: { fontSize: 13, fontWeight: '600', color: '#27500a' },
+  kitTotalSub: { fontSize: 11, color: '#4a8a1a', marginTop: 2 },
+  kitTotalAmt: { fontSize: 22, fontWeight: '700', color: C.green700 },
   potCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, backgroundColor: C.white, borderRadius: 14, padding: 16, borderWidth: 1, borderColor: C.sand2, marginBottom: 10 },
   potEmoji: { fontSize: 28 },
   potLabel: { fontSize: 11, color: C.ink4, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },

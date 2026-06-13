@@ -214,10 +214,27 @@ export interface Plant {
   fertiliserIntervalDays: number
   pruningIntervalDays?: number
   repottingIntervalMonths?: number
+  potSizeMinInch?: number; potSizeMaxInch?: number; potVolumeLitres?: number
+  soilCocoPeatPct?: number; soilGardenSoilPct?: number; soilCompostPct?: number
+  soilExtrasPct?: number; soilExtrasNote?: string; potNotes?: string
+  kit?: KitItem[]
+  kitTotal?: number
   careGuide: CareGuideSection[]
   partner?: { id: string; businessName: string; city: string; state: string }
   createdAt: string
   updatedAt: string
+}
+
+export interface KitItem {
+  slug: string
+  name: string
+  role: string
+  qty: number
+  unit: string
+  exactNote: string
+  priority: 'essential' | 'recommended' | 'optional'
+  price: number
+  thumbnailUrl?: string
 }
 
 export interface CareGuideSection {

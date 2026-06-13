@@ -125,7 +125,13 @@ export interface ApiPlant {
   potSizeMinInch?: number; potSizeMaxInch?: number; potVolumeLitres?: number
   soilCocoPeatPct?: number; soilGardenSoilPct?: number; soilCompostPct?: number
   soilExtrasPct?: number; soilExtrasNote?: string; potNotes?: string
+  kit?: KitItem[]; kitTotal?: number
   careGuide: { id: string; title: string; icon: string; body: string; order: number }[]
+}
+export interface KitItem {
+  slug: string; name: string; role: string; qty: number; unit: string
+  exactNote: string; priority: 'essential' | 'recommended' | 'optional'
+  price: number; thumbnailUrl?: string
 }
 export interface ApiSupply { id: string; name: string; slug: string; description: string; price: number; comparePrice?: number; stock: number; thumbnailUrl: string; category: string; badges: string[] }
 export interface ApiSeed {

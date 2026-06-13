@@ -198,6 +198,60 @@ export default function PlantDetailClient({ plant, related, slug }: Props) {
           </>
         )}
 
+        {/* Complete your kit */}
+        {plant.kit && plant.kit.length > 0 && (
+          <>
+            <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: '#a8a89e', marginBottom: 4 }}>Complete your kit</h2>
+            <p style={{ fontSize: 13, color: '#6b6b64', marginBottom: 14 }}>
+              Everything you need for <strong>{plant.name}</strong> — exact quantities calculated for a {plant.potSizeMinInch}"–{plant.potSizeMaxInch}" pot.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
+              {plant.kit.map((item) => (
+                <div key={item.slug} style={{ backgroundColor: 'white', borderRadius: 14, border: `1.5px solid ${item.priority === 'essential' ? '#c5dfa5' : item.priority === 'recommended' ? '#e8e0d0' : '#f0ece4'}`, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  {/* thumbnail */}
+                  <div style={{ width: 56, height: 56, borderRadius: 10, backgroundColor: '#f5f0e8', flexShrink: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {item.thumbnailUrl
+                      ? <img src={item.thumbnailUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <span style={{ fontSize: 24 }}>🌿</span>}
+                  </div>
+                  {/* info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                      <span style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, color: item.priority === 'essential' ? '#3b6d11' : item.priority === 'recommended' ? '#a07020' : '#888', backgroundColor: item.priority === 'essential' ? '#eaf3de' : item.priority === 'recommended' ? '#fdf5e4' : '#f5f0e8', padding: '2px 8px', borderRadius: 100 }}>{item.priority}</span>
+                      <span style={{ fontSize: 11, color: '#a8a89e' }}>{item.role}</span>
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: '#1a1a18', marginBottom: 3 }}>
+                      {item.qty > 1 ? `×${item.qty}  ` : ''}{item.name}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6b6b64', lineHeight: 1.5 }}>{item.exactNote}</div>
+                  </div>
+                  {/* price + add */}
+                  <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#3b6d11', marginBottom: 6 }}>₹ {item.price}</div>
+                    <Link href={`/shop?search=${encodeURIComponent(item.name)}`}
+                      style={{ fontSize: 12, fontWeight: 500, color: '#3b6d11', textDecoration: 'none', backgroundColor: '#eaf3de', padding: '5px 12px', borderRadius: 100, whiteSpace: 'nowrap' }}>
+                      + Add
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Kit total */}
+            <div style={{ backgroundColor: '#eaf3de', borderRadius: 14, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
+              <div>
+                <div style={{ fontSize: 12, color: '#27500a', fontWeight: 600 }}>Total kit value</div>
+                <div style={{ fontSize: 11, color: '#4a8a1a', marginTop: 2 }}>Incl. plant + all {plant.kit.length} items above</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 22, fontWeight: 700, color: '#3b6d11' }}>₹ {(plant.kitTotal ?? 0) + plant.price}</div>
+                <div style={{ fontSize: 11, color: '#4a8a1a' }}>complete setup</div>
+              </div>
+            </div>
+          </>
+        )}
+
         {/* Care guide accordion */}
         {plant.careGuide?.length > 0 && (
           <>
